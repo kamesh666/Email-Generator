@@ -12,6 +12,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import axios from "axios";
 
 function App() {
@@ -20,10 +22,13 @@ function App() {
   const [generatedReply, setGeneratedReply] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
+    setCopied(false);
+
     try {
       const response = await axios.post(
         "http://localhost:8080/api/email/generate",
@@ -40,6 +45,12 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedReply);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000); // show tick for 2s
   };
 
   return (
@@ -105,11 +116,13 @@ function App() {
           />
 
           <Button
-            variant="outlined"
+            variant={copied ? "contained" : "outlined"}
+            color={copied ? "success" : "primary"}
             sx={{ mt: 2 }}
-            onClick={() => navigator.clipboard.writeText(generatedReply)}
+            onClick={handleCopy}
+            startIcon={copied ? <CheckCircleIcon /> : <ContentCopyIcon />}
           >
-            Copy to Clipboard
+            {copied ? "Copied!" : "Copy to Clipboard"}
           </Button>
         </Box>
       )}
